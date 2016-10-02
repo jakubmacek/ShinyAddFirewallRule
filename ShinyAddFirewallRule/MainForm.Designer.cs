@@ -63,6 +63,7 @@
             this.uiName.ReadOnly = true;
             this.uiName.Size = new System.Drawing.Size(360, 20);
             this.uiName.TabIndex = 2;
+            this.uiName.Text = "Program: ";
             // 
             // uiLabelProgram
             // 
