@@ -8,23 +8,26 @@ namespace ShinyAddFirewallRule
 {
     class ProcessItem
     {
-        public Process Process { get; private set; }
+        public string FileName { get; private set; }
+        public string ProcessName { get; private set; }
 
         public ProcessItem(Process process)
         {
-            Process = process;
+            try
+            {
+                ProcessName = process.ProcessName;
+                FileName = process.MainModule.FileName;
+            }
+            catch
+            {
+                ProcessName = "-- access denied -- ";
+                FileName = "-- access denied -- ";
+            }
         }
 
         public override string ToString()
         {
-            try
-            {
-                return Process.MainModule.FileName;
-            }
-            catch
-            {
-                return "-- access denied -- ";
-            }
+            return FileName;
         }
     }
 }

@@ -19,8 +19,13 @@ namespace ShinyAddFirewallRule
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            LoadProcessList();
+        }
+
+        private void LoadProcessList()
+        {
             var list = Process.GetProcesses().Select(process => new ProcessItem(process)).ToList();
-            list.Sort((a, b) => a.ToString().CompareTo(b.ToString()));
+            list.Sort((a, b) => string.Compare(a.ToString(), b.ToString(), StringComparison.Ordinal));
 
             uiProgram.Items.Clear();
             foreach (var item in list)
@@ -33,7 +38,7 @@ namespace ShinyAddFirewallRule
                 return;
             //if (uiName.ReadOnly)
             {
-                uiName.Text = "_Program: " + (uiProgram.SelectedItem as ProcessItem).Process.ProcessName;
+                uiName.Text = "_Program: " + (uiProgram.SelectedItem as ProcessItem).ProcessName;
                 uiName.ReadOnly = false;
                 uiButtonRun.Enabled = true;
             }
@@ -41,17 +46,7 @@ namespace ShinyAddFirewallRule
 
         private void uiButtonRun_Click(object sender, EventArgs e)
         {
-            var startInfo = new ProcessStartInfo("netsh.exe", "advfirewall firewall add rule name=\"" + uiName.Text + "\" dir=out action=allow program=\"" + (uiProgram.SelectedItem as ProcessItem).Process.MainModule.FileName + "\" enable=yes");
-            startInfo.UseShellExecute = false;
-            startInfo.RedirectStandardError = true;
-            startInfo.RedirectStandardOutput = true;
-            //MessageBox.Show(startInfo.Arguments, startInfo.FileName);
-            var p = Process.Start(startInfo);
-            p.WaitForExit();
-            var stdOut = p.StandardOutput.ReadToEnd();
-            var stdErr = p.StandardError.ReadToEnd();
-            if ((stdOut.Trim() != "Ok.") || !string.IsNullOrEmpty(stdErr))
-                MessageBox.Show("stdout: " + stdOut + "\nstderr: " + stdErr);
+            Program.AddFirewallRule((uiProgram.SelectedItem as ProcessItem).FileName, uiName.Text);
         }
     }
 }
